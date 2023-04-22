@@ -8,6 +8,7 @@ class Character:
     movie_id: int
     gender: str
     age: int
+    line_ids: list
     num_lines: int
 
 
@@ -38,3 +39,5 @@ class Line:
     conv_id: int
     line_sort: int
     line_text: str
+    name: str
+    movie: str
