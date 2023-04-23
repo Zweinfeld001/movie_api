@@ -1,0 +1,414 @@
+[
+  {
+    "name": "AUSTIN",
+    "c_id": 362,
+    "movie": "austin powers: international man of mystery",
+    "lines_with_token": [
+      "Hello hello. That's Dr. Evil's cat.",
+      "'Pardon me for being rude It was not me it was my food. It just popped up to say hello and now it's gone back down below.'"
+    ]
+  },
+  {
+    "name": "VENKMAN",
+    "c_id": 1133,
+    "movie": "ghostbusters ii",
+    "lines_with_token": [
+      "I'm an old friend of the mayor's. I just want to say hello to him.",
+      "Oh hello perhaps you could help me. I'm looking for an aerosol love potion I could spray on a certain Penthouse Pet that would make her unconditionally submit to an unusual personal request."
+    ]
+  },
+  {
+    "name": "JENNIFER",
+    "c_id": 2506,
+    "movie": "pleasantville",
+    "lines_with_token": [
+      "Um--hello? I've got like a social emergency here.",
+      "Um--hello? You want to like take a look?"
+    ]
+  },
+  {
+    "name": "JOEY",
+    "c_id": 2564,
+    "movie": "raging bull",
+    "lines_with_token": [
+      "Tommy Jake respects you. He won't even say hello to anybody else -- you know that. But you know when Jake gets set on somethin' Jesus Christ Almighty could get off the fuckin' cross and he ain't gonna talk him out of it. I'm his kid brother. I got no say with Jake on this. He thinks he can buck everybody and make it on his own.",
+      "What? I just said hello. Since when I can't kiss my sister-in-law?"
+    ]
+  },
+  {
+    "name": "SAM",
+    "c_id": 4249,
+    "movie": "brazil",
+    "lines_with_token": [
+      "Hello ... hello ...",
+      "Ah ... hello Mrs Terrain. SAM lets go of the parcel and pushes JILL away. She moves off."
+    ]
+  },
+  {
+    "name": "THEO",
+    "c_id": 4398,
+    "movie": "cellular",
+    "lines_with_token": [
+      "Don't be afraid to say hello. Your friend with the recent transplant is in no condition to deliver that briefcase. So I've taken on the task.",
+      "Your friends are probably still on the line. Pick it up and say hello."
+    ]
+  },
+  {
+    "name": "KINDERMAN",
+    "c_id": 5145,
+    "movie": "the exorcist",
+    "lines_with_token": [
+      "Yeah I hate to go alone. You know I like to talk film; discuss the critique. D'you wanna see a film with me? I got passes to The Crest. It's Othello.",
+      "Who's in it? Debbie Reynolds Desdemona and Othello Groucho Marx. You're happy?"
+    ]
+  },
+  {
+    "name": "FRANK",
+    "c_id": 5394,
+    "movie": "frequency",
+    "lines_with_token": [
+      "Jules I want you to say hello to somebody... I'm on with John - that guy I told you about.",
+      "John say hello to my wife...Julia."
+    ]
+  },
+  {
+    "name": "JOHN",
+    "c_id": 5397,
+    "movie": "frequency",
+    "lines_with_token": [
+      "Uh hello?",
+      "Just came by to wrap up over there. Thought I'd say \"hello.\"\""
+    ]
+  },
+  {
+    "name": "GEORGE",
+    "c_id": 6045,
+    "movie": "it's a wonderful life",
+    "lines_with_token": [
+      "Well hello.",
+      "Say hello to New York for me."
+    ]
+  },
+  {
+    "name": "PHIL",
+    "c_id": 6443,
+    "movie": "magnolia",
+    "lines_with_token": [
+      "Hi hello great. This is Seduce and Destroy?",
+      "Well ok. Lemme see how I explain this without it seeming kinda crazy but here go: I'm my name is Phil Parma and I work for a man named Earl Partridge -- Mr. Earl Partidge. I'm his nurse. He's a very sick man. He's a dying man and he's sick and he's asked me to help him to help him find his son -- Hello? Are you there hello?"
+    ]
+  },
+  {
+    "name": "BREAN",
+    "c_id": 8810,
+    "movie": "wag the dog",
+    "lines_with_token": [
+      "Just....do what I ...look: get me a ...hello...? Hel...? I'm going to need an <u>ambulance</u> we take him the last moment right from the Pl...no <u>we</u> land we puttem <u>in</u> the ambulance. Air force jet lands we take somebody <u>else</u> off <u>that</u> jet...what the fuck do <u>I</u> care? Somebody in a Hospital gown. And we need a ......hello? Hello...?",
+      "It's an anti-psychotic the num... the number...hello...hello..."
+    ]
+  },
+  {
+    "name": "WELLES",
+    "c_id": 114,
+    "movie": "8mm",
+    "lines_with_token": [
+      "You know Amy I've been sitting around in bars and everywhere following this guy... I mean is this what I get first thing? Before you even \"hello you accuse me... ?"
+    ]
+  },
+  {
+    "name": "MRS. KENSINGTON",
+    "c_id": 371,
+    "movie": "austin powers: international man of mystery",
+    "lines_with_token": [
+      "Oh hello Vanessa. How was the flight?"
+    ]
+  },
+  {
+    "name": "THERAPIST",
+    "c_id": 376,
+    "movie": "austin powers: international man of mystery",
+    "lines_with_token": [
+      "That was great Mr. Keon Dave. Thank you. OK group we have two new member. Say hello to Scott and his father Mr.... Ehville?"
+    ]
+  },
+  {
+    "name": "JEFFREY",
+    "c_id": 574,
+    "movie": "blue velvet",
+    "lines_with_token": [
+      "You said hello to Frank. You wanted to talk to someone? Don? And little Donny. You said something about Momma loves you. And something about a Meadow Lane. Something in an hour. I don't remember any more."
+    ]
+  },
+  {
+    "name": "PLUMED DWARF",
+    "c_id": 837,
+    "movie": "the elephant man",
+    "lines_with_token": [
+      "Say hello to London for me. I miss her."
+    ]
+  },
+  {
+    "name": "JOEL",
+    "c_id": 861,
+    "movie": "eternal sunshine of the spotless mind",
+    "lines_with_token": [
+      "You didn't miss much. Rob and Carrie say hello."
+    ]
+  },
+  {
+    "name": "NICK",
+    "c_id": 1034,
+    "movie": "godzilla",
+    "lines_with_token": [
+      "Audrey?! Is that you? Hi hello. You look wow uh how've you been?"
+    ]
+  },
+  {
+    "name": "HARRY",
+    "c_id": 1077,
+    "movie": "get shorty",
+    "lines_with_token": [
+      "Karen say hello to Chili Palmer. Chili this is Karen Flores."
+    ]
+  },
+  {
+    "name": "DANA",
+    "c_id": 1093,
+    "movie": "ghost world",
+    "lines_with_token": [
+      "Seymour?... uh... hello... I guess I'm a little early..."
+    ]
+  },
+  {
+    "name": "ENID",
+    "c_id": 1094,
+    "movie": "ghost world",
+    "lines_with_token": [
+      "Well hello there young employee of the Sidewinder."
+    ]
+  },
+  {
+    "name": "SEYMOUR",
+    "c_id": 1108,
+    "movie": "ghost world",
+    "lines_with_token": [
+      "Uh... hello?"
+    ]
+  },
+  {
+    "name": "DANA",
+    "c_id": 1120,
+    "movie": "ghostbusters ii",
+    "lines_with_token": [
+      "Oh hello Peter."
+    ]
+  },
+  {
+    "name": "LOUIS",
+    "c_id": 1127,
+    "movie": "ghostbusters ii",
+    "lines_with_token": [
+      "This is my cousin Sherman. Sherm say hello to the Ghostbusters. I promised him a ride in the car if he got you out."
+    ]
+  },
+  {
+    "name": "BEN",
+    "c_id": 1169,
+    "movie": "the graduate",
+    "lines_with_token": [
+      "Oh -- hello Mr. McCleery."
+    ]
+  },
+  {
+    "name": "MRS. BRADDOCK",
+    "c_id": 1177,
+    "movie": "the graduate",
+    "lines_with_token": [
+      "Say hello to Mrs. Robinson Benjamin."
+    ]
+  },
+  {
+    "name": "RUTH",
+    "c_id": 1524,
+    "movie": "intolerable cruelty",
+    "lines_with_token": [
+      "Oh just a routine mammogram. She said to say hello. She's going to Positano with your brother's family."
+    ]
+  },
+  {
+    "name": "X",
+    "c_id": 1588,
+    "movie": "jfk",
+    "lines_with_token": [
+      "...got promoted to two stars but he was never military you know always CIA. Went to Vietnam lost his credibility when we got beat over there retired lives in Virginia. I say hello to him when I see him at the supermarket..."
+    ]
+  },
+  {
+    "name": "MAX",
+    "c_id": 1595,
+    "movie": "jackie brown",
+    "lines_with_token": [
+      "Well hello."
+    ]
+  },
+  {
+    "name": "HOOPER",
+    "c_id": 1649,
+    "movie": "jaws",
+    "lines_with_token": [
+      "I'll see ya. Tell Dorothy hello."
+    ]
+  },
+  {
+    "name": "ADRIAN",
+    "c_id": 1834,
+    "movie": "little nicky",
+    "lines_with_token": [
+      "Oh Nicky I've missed you. Come on out and say hello..."
+    ]
+  },
+  {
+    "name": "RUFUS",
+    "c_id": 1929,
+    "movie": "minority report",
+    "lines_with_token": [
+      "Well hello there honey-pie."
+    ]
+  },
+  {
+    "name": "WITWER",
+    "c_id": 1934,
+    "movie": "minority report",
+    "lines_with_token": [
+      "Speaking of interfacing I'd love to say hello."
+    ]
+  },
+  {
+    "name": "HUBERT",
+    "c_id": 2137,
+    "movie": "mr. smith goes to washington",
+    "lines_with_token": [
+      "No no--believe me pet--this is *most* urgent-- Hello hello. Is Taylor there?-- Governor Hopper. Quickly please--"
+    ]
+  },
+  {
+    "name": "JEFFERSON",
+    "c_id": 2138,
+    "movie": "mr. smith goes to washington",
+    "lines_with_token": [
+      "*Who*! Miss--! Is that--? Why didn't you--? Holy smoke; H-hello... Yes Miss Paine... How-- how are you Miss Paine...? What?... Escort *you* Gee--I mean--*sure*-- *yes*! I'd be--. Reception for a *princess*! Gosh!... Thanks Miss Paine. Yes. I--I'll be there! Goodbye Miss Paine. Did you hear that?--Escort Susan Paine--reception for a princess! Imagine her calling me--asking *me*-- !"
+    ]
+  },
+  {
+    "name": "MR. JOHNSON",
+    "c_id": 2509,
+    "movie": "pleasantville",
+    "lines_with_token": [
+      "Oh hello Betty."
+    ]
+  },
+  {
+    "name": "ELIZABETH",
+    "c_id": 2516,
+    "movie": "punch-drunk love",
+    "lines_with_token": [
+      "I'm just stopping by to say hello."
+    ]
+  },
+  {
+    "name": "KAREN",
+    "c_id": 2517,
+    "movie": "punch-drunk love",
+    "lines_with_token": [
+      "Well it's just not true. We wouldn't be looking at you -- why are you wearing this suit? Did you say hello to your brother in law's?"
+    ]
+  },
+  {
+    "name": "LENA",
+    "c_id": 2521,
+    "movie": "punch-drunk love",
+    "lines_with_token": [
+      "-- oh that's too bad it's so great over there and if you were there we could say hello to each other or something --"
+    ]
+  },
+  {
+    "name": "JAKE",
+    "c_id": 2563,
+    "movie": "raging bull",
+    "lines_with_token": [
+      "You wanted to say hello eh? I can't believe it. When did you fall outa heaven? Anyone ever tell you you're the most beautiful one here princess of the pool. You got a baby face. Look at mine. Whatcha wanna meet me for?"
+    ]
+  },
+  {
+    "name": "VICKIE",
+    "c_id": 2569,
+    "movie": "raging bull",
+    "lines_with_token": [
+      "I just wanted to say hello."
+    ]
+  },
+  {
+    "name": "FREDDY",
+    "c_id": 2610,
+    "movie": "reservoir dogs",
+    "lines_with_token": [
+      "Say \"hello\" to a motherfucker who's inside. Cabot's doing a job and take a big fat guess who he wants on the team?\""
+    ]
+  },
+  {
+    "name": "MILES",
+    "c_id": 2738,
+    "movie": "sideways",
+    "lines_with_token": [
+      "I thought we could just say a quick hello to my mother."
+    ]
+  },
+  {
+    "name": "PETER",
+    "c_id": 2876,
+    "movie": "spider-man",
+    "lines_with_token": [
+      "Don't misquote Othello at me. Besides, you'd have to care about somebody to strangle them."
+    ]
+  },
+  {
+    "name": "DICKIE",
+    "c_id": 3117,
+    "movie": "the talented mr. ripley",
+    "lines_with_token": [
+      "Who? Oh Tom hello how are you? We thought you'd disappeared. We were going to send out a search party."
+    ]
+  },
+  {
+    "name": "FREDDIE",
+    "c_id": 3118,
+    "movie": "the talented mr. ripley",
+    "lines_with_token": [
+      "Oh hello where's Dickie? How are you?"
+    ]
+  },
+  {
+    "name": "DOUGH-BOY",
+    "c_id": 3131,
+    "movie": "taxi driver",
+    "lines_with_token": [
+      "Support my kids. Can you dig it? Nice to meet ya Travis. So long Wizard. Say hello to Malcolm X for me."
+    ]
+  },
+  {
+    "name": "HELEN",
+    "c_id": 3201,
+    "movie": "the day the earth stood still",
+    "lines_with_token": [
+      "Oh -- hello--"
+    ]
+  },
+  {
+    "name": "MAX",
+    "c_id": 3214,
+    "movie": "the lost boys",
+    "lines_with_token": [
+      "Say hello to Thorn."
+    ]
+  }
+]
