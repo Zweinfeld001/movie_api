@@ -9,6 +9,7 @@ client = TestClient(app)
 prefix = "/Users/zach/Desktop/CSC_365/Assignment3/"
 prefix = ""
 
+
 def test_get_movie():
     response = client.get("/movies/44")
     assert response.status_code == 200

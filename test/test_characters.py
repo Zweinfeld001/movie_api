@@ -9,6 +9,7 @@ client = TestClient(app)
 prefix = "/Users/zach/Desktop/CSC_365/Assignment3/"
 prefix = ""
 
+
 def test_get_character():
     response = client.get("/characters/7421")
     assert response.status_code == 200
