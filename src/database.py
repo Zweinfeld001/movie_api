@@ -6,9 +6,6 @@ from supabase import Client, create_client
 import dotenv
 import ast
 
-prefix = "/Users/zach/Desktop/CSC_365/Assignment3/"
-prefix = ""
-
 # DO NOT CHANGE THIS TO BE HARDCODED. ONLY PULL FROM ENVIRONMENT VARIABLES.
 dotenv.load_dotenv()
 supabase_api_key = os.environ.get("SUPABASE_API_KEY")
