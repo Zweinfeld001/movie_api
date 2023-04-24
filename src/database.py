@@ -82,7 +82,6 @@ movies = {
     for row in csv.DictReader(io.StringIO(movies_csv), skipinitialspace=True)
     }
 
-
 characters_csv = (
     supabase.storage.from_("movie-api")
     .download("characters.csv")
@@ -100,7 +99,6 @@ for row in csv.DictReader(io.StringIO(characters_csv), skipinitialspace=True):
     )
     characters[char.id] = char
 
-
 conversations_csv = (
     supabase.storage.from_("movie-api")
     .download("conversations.csv")
@@ -116,7 +114,6 @@ for row in csv.DictReader(io.StringIO(conversations_csv), skipinitialspace=True)
         0,
     )
     conversations[conv.id] = conv
-
 
 lines_csv = (
     supabase.storage.from_("movie-api")
