@@ -4,7 +4,6 @@ import os
 import io
 from supabase import Client, create_client
 import dotenv
-import ast
 
 # DO NOT CHANGE THIS TO BE HARDCODED. ONLY PULL FROM ENVIRONMENT VARIABLES.
 dotenv.load_dotenv()
