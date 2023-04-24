@@ -3,7 +3,7 @@ from src import database as db
 from pydantic import BaseModel
 from typing import List
 from datetime import datetime
-import importlib
+# import importlib
 
 
 # FastAPI is inferring what the request body should look like
@@ -93,7 +93,7 @@ def add_conversation(movie_id: int, conversation: ConversationJson):
     # problem, especially if a user tried a read operation simultaneously.
     db.upload_new_log("lines.csv", lines_to_upload)
 
-    importlib.reload(db)
+    # importlib.reload(db)
     return conv_id
 
 
