@@ -5,8 +5,8 @@ from fastapi.testclient import TestClient
 from src.api.server import app
 from src.api.conversations import add_conversation, LinesJson, ConversationJson
 from fastapi import HTTPException
+import random
 
-import json
 
 client = TestClient(app)
 
@@ -35,6 +35,25 @@ class TestAddConversation(unittest.TestCase):
         char_7421 = client.get("/characters/7421").json()
         assert char_7421.get("top_conversations")[0].get("number_of_lines_together") > 25
 
+    def test_ad_random_int(self):
+        # Generate random ints to add to lines
+        rand1 = str(random.randint(1, 9999999))
+        rand2 = str(random.randint(1, 9999999))
+        conversation = ConversationJson(
+            character_1_id=0,
+            character_2_id=1,
+            lines=[
+                LinesJson(character_id=0, line_text=rand1),
+                LinesJson(character_id=1, line_text=rand2)
+            ]
+        )
+        add_conversation(0, conversation)
+        response_0 = client.get("/lines/0").json()
+        response_1 = client.get("lines/1").json()
+        assert rand1 in [x.get("line_text") for x in response_0]
+        assert rand2 in [x.get("line_text") for x in response_1]
+
+    # Error tests
     def test_chars_not_found(self):
         conversation = ConversationJson(
             character_1_id=0,

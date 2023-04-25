@@ -5,6 +5,7 @@ import io
 from supabase import Client, create_client
 import dotenv
 
+
 # DO NOT CHANGE THIS TO BE HARDCODED. ONLY PULL FROM ENVIRONMENT VARIABLES.
 dotenv.load_dotenv()
 supabase_api_key = os.environ.get("SUPABASE_API_KEY")
@@ -28,7 +29,8 @@ def upload_new_log(file, logs_to_upload):
     # If this function is called multiple times during different writes,
     # there is a potential for errors. The logs would be pulled down locally
     # in different environments, then edited and re-uploaded differently,
-    # which could cause one of the writes to be ignored.
+    # which could cause one of the writes to be ignored. Whichever log is
+    # uploaded first will be overwritten.
 
     file_csv = (
         supabase.storage.from_("movie-api")
@@ -38,8 +40,8 @@ def upload_new_log(file, logs_to_upload):
     logs = []
     for row in csv.DictReader(io.StringIO(file_csv), skipinitialspace=True):
         logs.append(row)
-    for log in logs_to_upload:
-        logs.append(log)
+    logs.extend(logs_to_upload)
+
     output = io.StringIO()
     mapper = {
         "movie_conversations_log.csv": ["post_call_time", "movie_id_added_to"],
@@ -51,6 +53,9 @@ def upload_new_log(file, logs_to_upload):
     )
     csv_writer.writeheader()
     csv_writer.writerows(logs)
+
+    # This line is slow (~2 sec per call) since it must re-upload
+    # the entire log every time
     supabase.storage.from_("movie-api").upload(
         file,
         bytes(output.getvalue(), "utf-8"),

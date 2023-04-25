@@ -3,7 +3,7 @@ from src import database as db
 from pydantic import BaseModel
 from typing import List
 from datetime import datetime
-# import importlib
+from src.datatypes import Conversation, Line
 
 
 # FastAPI is inferring what the request body should look like
@@ -61,7 +61,6 @@ def add_conversation(movie_id: int, conversation: ConversationJson):
     db.upload_new_log("movie_conversations_log.csv", [info_to_upload])
 
     conv_id = list(db.conversations.keys())[-1] + 1
-
     conv_to_upload = {
         "conversation_id": conv_id,
         "character1_id": c1_id,
@@ -73,9 +72,10 @@ def add_conversation(movie_id: int, conversation: ConversationJson):
     current_line_id = list(db.lines.keys())[-1] + 1
     current_line_sort = 1
     lines = conversation.lines
-
     lines_to_upload = []
 
+    c1_lines = 0
+    c2_lines = 0
     for line in lines:
         line_info = {
             "line_id": current_line_id,
@@ -89,11 +89,31 @@ def add_conversation(movie_id: int, conversation: ConversationJson):
         current_line_id += 1
         current_line_sort += 1
 
+        if line.character_id == c1_id:
+            c1_lines += 1
+        elif line.character_id == c2_id:
+            c2_lines += 1
+
+        new_line = Line(
+            id=current_line_id,
+            c_id=line.character_id,
+            movie_id=movie_id,
+            conv_id=conv_id,
+            line_sort=current_line_sort,
+            line_text=line.line_text)
+
+        db.lines[current_line_id] = new_line
     # If multiple calls were made at the same time, this could cause a
     # problem, especially if a user tried a read operation simultaneously.
+
     db.upload_new_log("lines.csv", lines_to_upload)
 
-    # importlib.reload(db)
+    db.characters.get(c1_id).num_lines += c1_lines
+    db.characters.get(c2_id).num_lines += c2_lines
+
+    conversation = Conversation(id=conv_id, c1_id=c1_id, c2_id=c2_id, movie_id=movie_id, num_lines=len(lines_to_upload))
+    db.conversations[conv_id] = conversation
+
     return conv_id
 
 
