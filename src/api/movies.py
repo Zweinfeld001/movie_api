@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException
 from enum import Enum
 from src import database as db
 from fastapi.params import Query
+import sqlalchemy
 
 router = APIRouter()
 
@@ -22,24 +23,35 @@ def get_movie(movie_id: int):
     * `num_lines`: The number of lines the character has in the movie.
 
     """
+    movie_info = sqlalchemy.select(
+        db.movies.c.title.label("movie_title")
+    ).where(db.movies.c.movie_id == str(movie_id))
+    character_info = sqlalchemy.select(
+        db.characters.c.character_id.label("character_id"),
+        db.characters.c.name.label("character"),
+        db.characters.c.num_lines.label("num_lines"),
+    ).select_from(db.movies.join(db.characters)).where(db.movies.c.movie_id == str(movie_id))\
+        .limit(5)\
+        .order_by(sqlalchemy.desc(db.characters.c.num_lines), db.characters.c.character_id)
 
-    movie = db.movies.get(movie_id)
-    if movie:
-        top_chars = [
-            {"character_id": c.id, "character": c.name, "num_lines": c.num_lines}
-            for c in db.characters.values()
-            if c.movie_id == movie_id
-        ]
-        top_chars.sort(key=lambda c: c["num_lines"], reverse=True)
+    with db.engine.connect() as conn:
+        movie_info = conn.execute(movie_info).fetchone()
+        if not movie_info:
+            raise HTTPException(status_code=404, detail="movie not found.")
+        character_info = conn.execute(character_info)
 
-        result = {
+        top_characters = [
+            {"character_id": int(row.character_id),
+             "character": row.character,
+             "num_lines": row.num_lines}
+            for row in character_info]
+
+        json = {
             "movie_id": movie_id,
-            "title": movie.title,
-            "top_characters": top_chars[0:5],
+            "title": movie_info[0],
+            "top_characters": top_characters
         }
-        return result
-
-    raise HTTPException(status_code=404, detail="movie not found.")
+    return json
 
 
 class movie_sort_options(str, Enum):
@@ -48,7 +60,6 @@ class movie_sort_options(str, Enum):
     rating = "rating"
 
 
-# Add get parameters
 @router.get("/movies/", tags=["movies"])
 def list_movies(
     name: str = "",
@@ -78,33 +89,47 @@ def list_movies(
     maximum number of results to return. The `offset` query parameter specifies the
     number of results to skip before returning results.
     """
-    if name:
-
-        def filter_fn(m):
-            return m.title and name.lower() in m.title
-
+    if sort is movie_sort_options.movie_title:
+        order_by = db.movies.c.title
+    elif sort is movie_sort_options.year:
+        order_by = db.movies.c.year
+    elif sort is movie_sort_options.rating:
+        order_by = sqlalchemy.desc(db.movies.c.imdb_rating)
     else:
+        assert False
 
-        def filter_fn(_):
-            return True
-
-    items = list(filter(filter_fn, db.movies.values()))
-    if sort == movie_sort_options.movie_title:
-        items.sort(key=lambda m: m.title)
-    elif sort == movie_sort_options.year:
-        items.sort(key=lambda m: m.year)
-    elif sort == movie_sort_options.rating:
-        items.sort(key=lambda m: m.imdb_rating, reverse=True)
-
-    json = (
-        {
-            "movie_id": m.id,
-            "movie_title": m.title,
-            "year": m.year,
-            "imdb_rating": m.imdb_rating,
-            "imdb_votes": m.imdb_votes,
-        }
-        for m in items[offset : offset + limit]
+    stmt = (
+        sqlalchemy.select(
+            db.movies.c.movie_id,
+            db.movies.c.title,
+            db.movies.c.year,
+            db.movies.c.imdb_rating,
+            db.movies.c.imdb_votes,
+        )
+            .limit(limit)
+            .offset(offset)
+            .order_by(order_by, db.movies.c.movie_id)
     )
 
+    # filter only if name parameter is passed
+    if name != "":
+        stmt = stmt.where(db.movies.c.title.ilike(f"%{name}%"))
+
+    with db.engine.connect() as conn:
+        result = conn.execute(stmt)
+        json = []
+        for row in result:
+            json.append(
+                {
+                    "movie_id": int(row.movie_id),
+                    "movie_title": row.title,
+                    "year": row.year,
+                    "imdb_rating": row.imdb_rating,
+                    "imdb_votes": row.imdb_votes,
+                }
+            )
+
     return json
+
+
+# print(list_movies("", limit=50, offset=0, sort=movie_sort_options.movie_title))
