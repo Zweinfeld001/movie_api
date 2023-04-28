@@ -24,13 +24,13 @@ def get_movie(movie_id: int):
 
     """
     movie_info = sqlalchemy.select(
-        db.movies.c.title.label("movie_title")
-    ).where(db.movies.c.movie_id == str(movie_id))
+        db.movies.c.title
+    ).where(db.movies.c.movie_id == movie_id)
     character_info = sqlalchemy.select(
-        db.characters.c.character_id.label("character_id"),
-        db.characters.c.name.label("character"),
-        db.characters.c.num_lines.label("num_lines"),
-    ).select_from(db.movies.join(db.characters)).where(db.movies.c.movie_id == str(movie_id))\
+        db.characters.c.character_id,
+        db.characters.c.name,
+        db.characters.c.num_lines,
+    ).select_from(db.movies.join(db.characters)).where(db.movies.c.movie_id == movie_id)\
         .limit(5)\
         .order_by(sqlalchemy.desc(db.characters.c.num_lines), db.characters.c.character_id)
 
@@ -41,17 +41,19 @@ def get_movie(movie_id: int):
         character_info = conn.execute(character_info)
 
         top_characters = [
-            {"character_id": int(row.character_id),
-             "character": row.character,
+            {"character_id": row.character_id,
+             "character": row.name,
              "num_lines": row.num_lines}
             for row in character_info]
 
         json = {
             "movie_id": movie_id,
-            "title": movie_info[0],
+            "title": movie_info.title,
             "top_characters": top_characters
         }
     return json
+
+# print(get_movie(0))
 
 
 class movie_sort_options(str, Enum):
@@ -121,7 +123,7 @@ def list_movies(
         for row in result:
             json.append(
                 {
-                    "movie_id": int(row.movie_id),
+                    "movie_id": row.movie_id,
                     "movie_title": row.title,
                     "year": row.year,
                     "imdb_rating": row.imdb_rating,

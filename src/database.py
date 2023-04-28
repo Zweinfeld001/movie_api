@@ -26,6 +26,25 @@ with engine.begin() as conn:
     lines = sqlalchemy.Table("lines", metadata_obj, autoload_with=engine)
     movies = sqlalchemy.Table("movies", metadata_obj, autoload_with=engine)
 
+    all_lines = conn.execute(sqlalchemy.select(
+        lines
+    )).fetchall()
+    chars_to_num_lines = {}
+    conv_to_num_lines = {}
+    for line in all_lines:
+        if line[1] in chars_to_num_lines.keys():
+            chars_to_num_lines[line[1]] += 1
+        else:
+            chars_to_num_lines[line[1]] = 1
+
+        if line[3] in conv_to_num_lines.keys():
+            conv_to_num_lines[line[3]] += 1
+        else:
+            conv_to_num_lines[line[3]] = 1
+
+
+
+
 
 # # Create a single connection to the database. Later we will discuss pooling connections.
 # conn = engine.connect()

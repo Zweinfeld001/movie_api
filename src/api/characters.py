@@ -1,28 +1,44 @@
 from fastapi import APIRouter, HTTPException
 from enum import Enum
-from collections import Counter
 
 from fastapi.params import Query
 from src import database as db
+import sqlalchemy
+
 
 router = APIRouter()
 
 
-def get_top_conv_characters(character):
-    c_id = character.id
-    movie_id = character.movie_id
-    all_convs = filter(
-        lambda conv: conv.movie_id == movie_id
-        and (conv.c1_id == c_id or conv.c2_id == c_id),
-        db.conversations.values(),
-    )
-    line_counts = Counter()
+def get_top_conv_characters(id, conn):
+    all_convs = sqlalchemy.select(
+        db.conversations.c.conversation_id,
+        db.conversations.c.character1_id.label("c1_id"),
+        db.conversations.c.character2_id.label("c2_id")
+    ).where((db.conversations.c.character1_id == id)
+            | (db.conversations.c.character2_id == id))
+    all_convs = conn.execute(all_convs).fetchall()
 
+    top_conversations = {}
     for conv in all_convs:
-        other_id = conv.c2_id if conv.c1_id == c_id else conv.c1_id
-        line_counts[other_id] += conv.num_lines
 
-    return line_counts.most_common()
+        other_id = conv.c1_id if conv.c1_id != id else conv.c2_id
+        if other_id in top_conversations.keys():
+            top_conversations[other_id]["number_of_lines_together"] += db.conv_to_num_lines.get(conv[0])
+        else:  # Initialize
+            other_info = sqlalchemy.select(
+                db.characters.c.name,
+                db.characters.c.gender
+            ).where(db.characters.c.character_id == other_id)
+            other_info = conn.execute(other_info).fetchone()
+            top_conversations[other_id] = {
+                "character_id": other_id,
+                "character": other_info.name,
+                "gender": other_info.gender,
+                "number_of_lines_together": db.conv_to_num_lines.get(conv.conversation_id)
+            }
+    top_conversations = list(top_conversations.values())
+    top_conversations.sort(key=lambda x: (-x["number_of_lines_together"], x["character_id"]))
+    return top_conversations
 
 
 @router.get("/characters/{id}", tags=["characters"])
@@ -47,28 +63,29 @@ def get_character(id: int):
       originally queried character.
     """
 
-    character = db.characters.get(id)
+    character_info = sqlalchemy.select(
+        db.characters.c.name,
+        db.characters.c.movie_id,
+        db.characters.c.gender,
+    ).where(db.characters.c.character_id == id)
 
-    if character:
-        movie = db.movies.get(character.movie_id)
-        result = {
-            "character_id": character.id,
-            "character": character.name,
-            "movie": movie and movie.title,
-            "gender": character.gender,
-            "top_conversations": (
-                {
-                    "character_id": other_id,
-                    "character": db.characters[other_id].name,
-                    "gender": db.characters[other_id].gender,
-                    "number_of_lines_together": lines,
-                }
-                for other_id, lines in get_top_conv_characters(character)
-            ),
+    with db.engine.connect() as conn:
+        character_info = conn.execute(character_info).fetchone()
+        if not character_info:
+            raise HTTPException(status_code=404, detail="character not found.")
+        movie_id = character_info.movie_id
+        movie = conn.execute(sqlalchemy.select(
+            db.movies.c.title
+        ).where(db.movies.c.movie_id == movie_id)).fetchone().title
+        top_conversation_info = get_top_conv_characters(id, conn)
+        json = {
+            "character_id": id,
+            "character": character_info.name,
+            "movie": movie,
+            "gender": character_info.gender,
+            "top_conversations": top_conversation_info
         }
-        return result
-
-    raise HTTPException(status_code=404, detail="character not found.")
+    return json
 
 
 class character_sort_options(str, Enum):
@@ -106,35 +123,59 @@ def list_characters(
     number of results to skip before returning results.
     """
 
-    if name:
-
-        def filter_fn(c):
-            return c.name and name.upper() in c.name
-
+    if sort is character_sort_options.character:
+        order_by = db.characters.c.name
+    elif sort is character_sort_options.movie:
+        order_by = db.movies.c.title
+    elif sort is character_sort_options.number_of_lines:
+        whens = [
+            (db.characters.c.character_id == id_, num_lines)
+            for id_, num_lines in db.chars_to_num_lines.items()
+        ]
+        num_lines = sqlalchemy.case(*whens, else_=0).label('num_lines')
+        order_by = sqlalchemy.desc(num_lines)
     else:
+        assert False
 
-        def filter_fn(_):
-            return True
-
-    items = list(filter(filter_fn, db.characters.values()))
-
-    def none_last(x, reverse=False):
-        return (x is None) ^ reverse, x
-
-    if sort == character_sort_options.character:
-        items.sort(key=lambda c: none_last(c.name))
-    elif sort == character_sort_options.movie:
-        items.sort(key=lambda c: none_last(db.movies[c.movie_id].title))
-    elif sort == character_sort_options.number_of_lines:
-        items.sort(key=lambda c: none_last(c.num_lines, True), reverse=True)
-
-    json = (
-        {
-            "character_id": c.id,
-            "character": c.name,
-            "movie": db.movies[c.movie_id].title,
-            "number_of_lines": c.num_lines,
-        }
-        for c in items[offset : offset + limit]
+    stmt = (
+        sqlalchemy.select(
+            db.characters.c.character_id,
+            db.characters.c.name,
+            db.characters.c.movie_id,
+        )
+            .select_from(
+            db.characters.join(
+                db.movies,
+                db.characters.c.movie_id == db.movies.c.movie_id
+            ))
+            .limit(limit)
+            .offset(offset)
+            .order_by(order_by, db.characters.c.character_id)
     )
+
+    # filter only if name parameter is passed
+    if name != "":
+        stmt = stmt.where(db.characters.c.name.ilike(f"%{name}%"))
+
+    with db.engine.connect() as conn:
+        result = conn.execute(stmt)
+        json = []
+        for row in result:
+            movie = conn.execute(
+                sqlalchemy.select(
+                    db.movies.c.title
+                ).where(db.movies.c.movie_id == row.movie_id)
+            ).fetchone()
+
+            json.append(
+                {
+                    "character_id": row.character_id,
+                    "character": row.name,
+                    "movie": movie.title,
+                    "number_of_lines": db.chars_to_num_lines.get(row.character_id)
+                }
+            )
+
     return json
+
+# print(list_characters(name="amy", limit=6, offset=0, sort=character_sort_options.number_of_lines))

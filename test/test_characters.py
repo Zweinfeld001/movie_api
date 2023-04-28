@@ -6,8 +6,8 @@ import json
 
 client = TestClient(app)
 
-prefix = "/Users/zach/Desktop/CSC_365/Assignment3/"
-prefix = ""
+prefix = "/Users/zach/Desktop/CSC_365/Assignment4/"
+# prefix = ""
 
 
 def test_get_character():
