@@ -2,8 +2,6 @@ from fastapi import APIRouter, HTTPException
 from src import database as db
 from pydantic import BaseModel
 from typing import List
-from datetime import datetime
-from src.datatypes import Conversation, Line
 import sqlalchemy
 
 
@@ -118,84 +116,6 @@ def add_conversation(movie_id: int, conversation: ConversationJson):
         conn.commit()
 
     return conv_id
-
-
-    # c1_id = conversation.character_1_id
-    # c2_id = conversation.character_2_id
-    #
-    # if not(db.characters.get(c1_id) and db.characters.get(c2_id)):
-    #     raise HTTPException(status_code=404, detail="character(s) not found.")
-    #
-    # if c1_id == c2_id:
-    #     raise HTTPException(status_code=400, detail="character ids are the same.")
-    #
-    # c1_movie_id = db.characters.get(c1_id).movie_id
-    # c2_movie_id = db.characters.get(c2_id).movie_id
-    #
-    # if c1_movie_id != c2_movie_id:
-    #     raise HTTPException(status_code=400, detail="characters are not from the same movie.")
-    #
-    # if c1_movie_id != movie_id:
-    #     raise HTTPException(status_code=400, detail="character(s) are not from the movie provided in movie_id.")
-    #
-    # info_to_upload = {"post_call_time": datetime.now(), "movie_id_added_to": movie_id}
-    # db.upload_new_log("movie_conversations_log.csv", [info_to_upload])
-    #
-    # conv_id = list(db.conversations.keys())[-1] + 1
-    # conv_to_upload = {
-    #     "conversation_id": conv_id,
-    #     "character1_id": c1_id,
-    #     "character2_id": c2_id,
-    #     "movie_id": movie_id
-    # }
-    # db.upload_new_log("conversations.csv", [conv_to_upload])
-    #
-    # current_line_id = list(db.lines.keys())[-1] + 1
-    # current_line_sort = 1
-    # lines = conversation.lines
-    # lines_to_upload = []
-    #
-    # c1_lines = 0
-    # c2_lines = 0
-    # for line in lines:
-    #     line_info = {
-    #         "line_id": current_line_id,
-    #         "character_id": line.character_id,
-    #         "movie_id": movie_id,
-    #         "conversation_id": conv_id,
-    #         "line_sort": current_line_sort,
-    #         "line_text": line.line_text
-    #     }
-    #     lines_to_upload.append(line_info)
-    #     current_line_id += 1
-    #     current_line_sort += 1
-    #
-    #     if line.character_id == c1_id:
-    #         c1_lines += 1
-    #     elif line.character_id == c2_id:
-    #         c2_lines += 1
-    #
-    #     new_line = Line(
-    #         id=current_line_id,
-    #         c_id=line.character_id,
-    #         movie_id=movie_id,
-    #         conv_id=conv_id,
-    #         line_sort=current_line_sort,
-    #         line_text=line.line_text)
-    #
-    #     db.lines[current_line_id] = new_line
-    # # If multiple calls were made at the same time, this could cause a
-    # # problem, especially if a user tried a read operation simultaneously.
-    #
-    # db.upload_new_log("lines.csv", lines_to_upload)
-    #
-    # db.characters.get(c1_id).num_lines += c1_lines
-    # db.characters.get(c2_id).num_lines += c2_lines
-    #
-    # conversation = Conversation(id=conv_id, c1_id=c1_id, c2_id=c2_id, movie_id=movie_id, num_lines=len(lines_to_upload))
-    # db.conversations[conv_id] = conversation
-    #
-    # return conv_id
 
 
 # conversation = ConversationJson(
