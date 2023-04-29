@@ -4,39 +4,21 @@ from fastapi import APIRouter, HTTPException
 from fastapi.params import Query
 
 from enum import Enum
-import Levenshtein
 
 from src import database as db
+import sqlalchemy
+
+from collections import OrderedDict
 
 router = APIRouter()
 
 
-def process_id(x):
-    try:
-        x = int(x)
-        return x
-    except ValueError:  # String
-        x = x.upper()
-        for char in db.characters.values():
-            if char.name == x:
-                return char.id
-        for i in range(1, 4):
-            for char in db.characters.values():
-                if Levenshtein.distance(x, char.name) <= i:
-                    return char.id
-
-
-def get_line_ids(id):
-    return [x.id for x in db.lines.values() if x.c_id == id]
-
 
 @router.get("/lines/{id}", tags=["lines"])
-def get_character_lines(id: str):
+def get_character_lines(id: int):
     """
     This endpoint returns a list of lines spoken by the character
-    whose id OR name is given. If a string is given and no character
-    names match exactly, it will find the closest character name that
-    does exist in the dataset.
+    whose id is given.
 
     For each line spoken by the character it returns:
     * `line_id`: the internal id of the line.
@@ -49,28 +31,47 @@ def get_character_lines(id: str):
     The lines will be sorted by `line_id`.
     """
 
-    id = process_id(id)
+    stmt = sqlalchemy.select(
+        db.lines.c.line_id,
+        db.lines.c.conversation_id,
+        db.lines.c.line_sort,
+        db.lines.c.movie_id,
+        db.lines.c.line_text
+    ).where(db.lines.c.character_id == id).order_by(db.lines.c.line_id)
 
-    character = db.characters.get(id)
+    with db.engine.connect() as conn:
+        line_info = conn.execute(stmt).fetchall()
+        print(line_info)
+        if len(line_info) == 0:
+            raise HTTPException(status_code=404, detail="character not found or character has no lines.")
+        movie = conn.execute(sqlalchemy.select(
+            db.movies.c.title
+        ).where(db.movies.c.movie_id == line_info[0].movie_id)).fetchone()
 
-    if character:
-        out = []
-        for line_id in get_line_ids(id):
-            line = db.lines.get(line_id)
-            conversation = db.conversations.get(line.conv_id)
-            said_to_id = conversation.c1_id if conversation.c1_id != id else conversation.c2_id
-            json = {
-                "line_id": line_id,
-                "conv_id": line.conv_id,
-                "line_sort": line.line_sort,
-                "said_to": db.characters.get(said_to_id).name,
-                "movie": db.movies.get(line.movie_id).title,
-                "line_text": line.line_text
-            }
-            out.append(json)
-        return out
+        json = []
+        for line in line_info:
+            said_to = conn.execute(sqlalchemy.select(
+                db.conversations.c.character1_id,
+                db.conversations.c.character2_id
+            ).where(db.conversations.c.conversation_id == line.conversation_id)).fetchone()
 
-    raise HTTPException(status_code=404, detail="character not found.")
+            said_to_id = said_to.character1_id if said_to.character1_id != id else said_to.character2_id
+
+            said_to_name = conn.execute(sqlalchemy.select(
+                db.characters.c.name
+            ).where(db.characters.c.character_id == said_to_id)).fetchone()
+
+            json.append(
+                {
+                    "line_id": line.line_id,
+                    "conv_id": line.conversation_id,
+                    "line_sort": line.line_sort,
+                    "said_to": said_to_name.name,
+                    "movie": movie.title,
+                    "line_text": line.line_text
+                }
+            )
+    return json
 
 
 class line_sort_options(str, Enum):
@@ -106,39 +107,57 @@ def list_characters_lines(
     parameters are used for pagination. The `limit` query parameter specifies the
     maximum number of results to return.
     """
-
     token = token.lower()
-    lines = {}
-    chars = list(db.characters.values())
 
-    if sort == line_sort_options.name:
-        chars = sorted(chars, key=lambda x: (x.name, x.id))
-    elif sort == line_sort_options.movie:
-        chars = sorted(chars, key=lambda x: (db.movies.get(x.movie_id).title, x.id))
+    if sort is line_sort_options.name:
+        order_by = db.characters.c.name
+    elif sort is line_sort_options.movie:
+        order_by = db.movies.c.title
+    elif sort is line_sort_options.lines_with_token:
+        pass
+    else:
+        assert False
 
-    for character in chars:
-        # ... character.line_ids
-        for line_id in get_line_ids(character.id):
-            line = db.lines.get(line_id)
-            if token in line.line_text:
-                char_id = line.c_id
-                if char_id in lines:
-                    lines.get(char_id).get("lines_with_token").append(line.line_text)
-                else:  # Initialize
-                    lines[char_id] = {
-                        "name": db.characters.get(line.c_id).name,
-                        "c_id": char_id,
-                        "movie": db.movies.get(line.movie_id).title,
-                        "lines_with_token": [line.line_text]
-                    }
-                    if sort != line_sort_options.lines_with_token and (len(lines.values()) == limit or len(lines.values()) == len(list(db.characters.values()))):
-                        return list(lines.values())
+    stmt = (
+        sqlalchemy.select(
+            sqlalchemy.func.max(db.characters.c.character_id).label("c_id"),
+            db.characters.c.name,
+            sqlalchemy.func.array_agg(db.lines.c.line_text).label("lines"),
+            sqlalchemy.func.min(db.movies.c.title).label("movie"),
+        )
+            .select_from(
+            db.lines.join(
+                db.characters,
+                db.characters.c.character_id == db.lines.c.character_id,
+            ).join(
+                db.movies,
+                db.characters.c.movie_id == db.movies.c.movie_id,
+            )
+        )
+            .where(db.lines.c.line_text.ilike(f"%{token}%"))
+            .group_by(db.characters.c.name, db.movies.c.title)
+    )
+
+    if sort != line_sort_options.lines_with_token:
+        stmt = stmt.order_by(order_by).limit(limit)
+
+    with db.engine.connect() as conn:
+        result = conn.execute(stmt)
+
+        json = [
+            {
+                "name": row.name,
+                "c_id": row.c_id,
+                "movie": row.movie,
+                "lines_with_token": [line for line in row.lines]
+            }
+            for row in result.fetchall()]
 
     if sort == line_sort_options.lines_with_token:
-        lines = list(sorted(lines.values(), key=lambda x: (-len(x.get("lines_with_token")), x.get("c_id"))))
-        return lines[:limit]
+        json.sort(key=lambda x: (-len(x["lines_with_token"]), x["c_id"]))
+        return json[:limit]
 
-    return list(lines.values())
+    return json
 
 
 class lines_spoken_to_sort_options(str, Enum):
@@ -148,13 +167,11 @@ class lines_spoken_to_sort_options(str, Enum):
 
 @router.get("/lines_spoken_to/", tags=["lines"])
 def get_lines_spoken_to(
-        id: str,
+        id: int,
         sort: lines_spoken_to_sort_options = lines_spoken_to_sort_options.name):
     """
     This endpoint returns a list of the lines spoken to the character
-    whose id OR name is given. If a string is given and no character
-    names match exactly, it will find the closest character name that
-    does exist in the dataset.
+    whose id is given.
 
     For each character that has interacted with `id` it returns:
     * A list of lines that character has spoken to `id`
@@ -164,30 +181,41 @@ def get_lines_spoken_to(
     * `number_of_lines` - Sort by number of lines the character has
     spoken to 'id', highest to lowest.
     """
-    id = process_id(id)
 
-    conversed = [conversation.id for conversation in db.conversations.values()
-                 if conversation.c1_id == id or conversation.c2_id == id]
-    dicts = []
-    for conversation_id in conversed:
-        lines = [line.id for line in db.lines.values() if line.conv_id == conversation_id]
-        for line_id in lines:
-            line = db.lines.get(line_id)
-            name = db.characters.get(line.c_id).name
-            if line.c_id != id:
-                found = False
-                for dict in dicts:
-                    if dict.get(name):
-                        found = True
-                        dict.get(name).append(line.line_text)
-                        break
-                if not found:
-                    dicts.append({name: [line.line_text]})
+    # id = process_id(id)
 
-    # Sort
+    stmt = sqlalchemy.select(
+        db.lines.c.line_id,
+        db.lines.c.character_id,
+        db.lines.c.conversation_id,
+        db.lines.c.line_text,
+        db.characters.c.name,
+    ).join(
+        db.conversations,
+        db.conversations.c.conversation_id == db.lines.c.conversation_id
+    ).join(
+        db.characters,
+        db.characters.c.character_id == db.lines.c.character_id
+    ).where(
+        (db.conversations.c.character1_id == id) | (db.conversations.c.character2_id == id)
+    ).where(
+        db.characters.c.character_id.in_([db.conversations.c.character1_id, db.conversations.c.character2_id])
+    )
+
+    with db.engine.connect() as conn:
+        result = conn.execute(stmt).fetchall()
+        json = OrderedDict()
+        for line in result:
+            if line.name in json.keys():
+                json[line.name].append(line.line_text)
+            elif line.character_id != id:  # Initialize
+                json[line.name] = [line.line_text]
+
+    out = [{name: lines} for name, lines in json.items()]
+
     if sort == lines_spoken_to_sort_options.name:
-        dicts = sorted(dicts, key=lambda x: (list(x.keys())[0], process_id(list(x.keys())[0])))
+        out.sort(key=lambda x: list(x.keys())[0])
     elif sort == lines_spoken_to_sort_options.number_of_lines:
-        dicts = sorted(dicts, key=lambda x: (-len(list(x.values())[0]), process_id(list(x.keys())[0])))
+        out.sort(key=lambda x: -len(list(x.values())[0]))
 
-    return dicts
+    return out
