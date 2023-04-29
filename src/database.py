@@ -27,20 +27,21 @@ with engine.begin() as conn:
     movies = sqlalchemy.Table("movies", metadata_obj, autoload_with=engine)
 
     all_lines = conn.execute(sqlalchemy.select(
-        lines
+        lines.c.character_id,
+        lines.c.conversation_id
     )).fetchall()
     chars_to_num_lines = {}
     conv_to_num_lines = {}
     for line in all_lines:
-        if line[1] in chars_to_num_lines.keys():
-            chars_to_num_lines[line[1]] += 1
+        if line.character_id in chars_to_num_lines.keys():
+            chars_to_num_lines[line.character_id] += 1
         else:
-            chars_to_num_lines[line[1]] = 1
+            chars_to_num_lines[line.character_id] = 1
 
-        if line[3] in conv_to_num_lines.keys():
-            conv_to_num_lines[line[3]] += 1
+        if line.conversation_id in conv_to_num_lines.keys():
+            conv_to_num_lines[line.conversation_id] += 1
         else:
-            conv_to_num_lines[line[3]] = 1
+            conv_to_num_lines[line.conversation_id] = 1
 
 
 

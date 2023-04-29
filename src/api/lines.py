@@ -13,7 +13,6 @@ from collections import OrderedDict
 router = APIRouter()
 
 
-
 @router.get("/lines/{id}", tags=["lines"])
 def get_character_lines(id: int):
     """
@@ -181,8 +180,6 @@ def get_lines_spoken_to(
     * `number_of_lines` - Sort by number of lines the character has
     spoken to 'id', highest to lowest.
     """
-
-    # id = process_id(id)
 
     stmt = sqlalchemy.select(
         db.lines.c.line_id,

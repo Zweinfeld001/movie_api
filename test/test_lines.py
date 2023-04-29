@@ -7,7 +7,7 @@ import json
 client = TestClient(app)
 
 prefix = "/Users/zach/Desktop/CSC_365/Assignment4/"
-# prefix = ""
+prefix = ""
 
 
 def test_get_character_lines():
